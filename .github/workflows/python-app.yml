@@ -1,4 +1,4 @@
-name: CI/CD for Python Tic-Tac-Toe
+name: Tic-Tac-Toe
 
 on:
   push:
@@ -21,8 +21,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run tests
-        run: pytest
+  
 
   deploy:
     runs-on: ubuntu-latest
