@@ -1,0 +1,32 @@
+Resources:
+  MyElasticBeanstalkApplication:
+    Type: AWS::ElasticBeanstalk::Application
+    Properties:
+      Description: My Python Application
+
+  MyElasticBeanstalkEnvironment:
+    Type: AWS::ElasticBeanstalk::Environment
+    Properties:
+      ApplicationName: 
+        Ref: MyElasticBeanstalkApplication
+      EnvironmentName: MyPythonEnvironment
+      SolutionStackName: 64bit Amazon Linux 2 v5.4.6 running Python 3.7
+      OptionSettings:
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: EnvironmentType
+          Value: SingleInstance
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: ServiceRole
+          Value: arn:aws:iam::123456789012:role/aws-elasticbeanstalk-service-role
+        # You can add more options like your application configuration here
+      Tags:
+        - Key: Name
+          Value: MyPythonApp
+
+Outputs:
+  ApplicationURL:
+    Description: URL of the Elastic Beanstalk Application
+    Value:
+      Fn::GetAtt:
+        - MyElasticBeanstalkEnvironment
+        - EndpointURL
