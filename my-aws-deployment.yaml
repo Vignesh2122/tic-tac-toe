@@ -1,32 +1,88 @@
-Resources:
-  MyElasticBeanstalkApplication:
-    Type: AWS::ElasticBeanstalk::Application
-    Properties:
-      Description: My Python Application
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS CodePipeline for Python Tic Tac Toe Application
 
-  MyElasticBeanstalkEnvironment:
-    Type: AWS::ElasticBeanstalk::Environment
+Resources:
+  MyCodePipeline:
+    Type: AWS::CodePipeline::Pipeline
     Properties:
-      ApplicationName: 
-        Ref: MyElasticBeanstalkApplication
-      EnvironmentName: MyPythonEnvironment
-      SolutionStackName: 64bit Amazon Linux 2 v5.4.6 running Python 3.7
-      OptionSettings:
-        - Namespace: aws:elasticbeanstalk:environment
-          OptionName: EnvironmentType
-          Value: SingleInstance
-        - Namespace: aws:elasticbeanstalk:environment
-          OptionName: ServiceRole
-          Value: arn:aws:iam::123456789012:role/aws-elasticbeanstalk-service-role
-        # You can add more options like your application configuration here
-      Tags:
-        - Key: Name
-          Value: MyPythonApp
+      Name: MyTicTacToePipeline
+      RoleArn: arn:aws:iam::YOUR_ACCOUNT_ID:role/YourCodePipelineRole
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: SourceAction
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: 1
+                Provider: CodeCommit
+              Configuration:
+                RepositoryName: YourCodeCommitRepository
+                BranchName: master
+                PollForSourceChanges: false
+              OutputArtifacts:
+                - Name: SourceOutput
+              RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: BuildAction
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: YourCodeBuildProject
+              InputArtifacts:
+                - Name: SourceOutput
+              OutputArtifacts:
+                - Name: BuildOutput
+              RunOrder: 1
+        - Name: Package
+          Actions:
+            - Name: PackageAction
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: YourPackageCodeBuildProject
+              InputArtifacts:
+                - Name: BuildOutput
+              OutputArtifacts:
+                - Name: PackageOutput
+              RunOrder: 2
+        - Name: Deploy
+          Actions:
+            - Name: DeployAction
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: ElasticBeanstalk
+              Configuration:
+                ApplicationName: YourElasticBeanstalkApplication
+                EnvironmentName: YourElasticBeanstalkEnvironment
+                VersionLabel: YourApplicationVersion
+              InputArtifacts:
+                - Name: PackageOutput
+              RunOrder: 1
+
+Parameters:
+  YourCodeCommitRepository:
+    Type: String
+  YourCodeBuildProject:
+    Type: String
+  YourPackageCodeBuildProject:
+    Type: String
+  YourElasticBeanstalkApplication:
+    Type: String
+  YourElasticBeanstalkEnvironment:
+    Type: String
+  YourApplicationVersion:
+    Type: String
 
 Outputs:
-  ApplicationURL:
-    Description: URL of the Elastic Beanstalk Application
-    Value:
-      Fn::GetAtt:
-        - MyElasticBeanstalkEnvironment
-        - EndpointURL
+  PipelineName:
+    Value: !Ref MyCodePipeline
