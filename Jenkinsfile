@@ -8,9 +8,9 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh 'sucessfully build'
+                sh 'Build pyapp.py'
             }
         }
         
     }
-}
+
