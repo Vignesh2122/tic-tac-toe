@@ -8,18 +8,9 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh 'your-build-command-here'
+                sh 'sucessfully build'
             }
         }
-        stage('Test') {
-            steps {
-                sh 'your-test-command-here'
-            }
-        }
-        stage('Deploy') {
-            steps {
-                sh 'your-deployment-command-here'
-            }
-        }
+        
     }
 }
